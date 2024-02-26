@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="lt">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Orai Lietuvoje</title>
+  <link href="//cdn.muicss.com/mui-0.10.3/css/mui.min.css" rel="stylesheet" type="text/css" />
+  <script src="//cdn.muicss.com/mui-0.10.3/js/mui.min.js"></script>
+</head>
+
+<body>
+  <div class="mui-container">
+    <form method="GET">
+      <div>
+        <label>Miestai:</label>
+        <select id="place" name="place">
+          {{range .Options }}
+          <option value="{{.Name}}" id="{{.Name}}" {{if eq .Name $.Selected}}selected{{end}}>{{.Name}}
+          </option>
+          {{end}}
+        </select>
+      </div>
+      <input type="submit" value="Rodyti">
+    </form>
+
+    <h1>{{.Selected}}</h1>
+  </div>
+</body>
+
+</html>
