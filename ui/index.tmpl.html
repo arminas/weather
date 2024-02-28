@@ -10,20 +10,40 @@
 
 <body>
   <div class="mui-container">
-    <form method="GET">
-      <div>
-        <label>Miestai:</label>
-        <select id="place" name="place">
-          {{range .Options }}
-          <option value="{{.Name}}" id="{{.Name}}" {{if eq .Name $.Selected}}selected{{end}}>{{.Name}}
-          </option>
+    <div class="mui-panel">
+      <form method="GET" class="mui-form">
+        <div>
+          <label>Miestai:</label>
+          <select id="place" name="place">
+            {{range .Options }}
+            <option value="{{.Name}}" id="{{.Name}}" {{if eq .Name $.Selected}}selected{{end}}>{{.Name}}
+            </option>
+            {{end}}
+          </select>
+        </div>
+        <input type="submit" value="Rodyti" class="mui-btn mui-btn--primary">
+      </form>
+      <div class="mui-divider"></div>
+      <h1>{{.Selected}}</h1>
+      <table class="mui-table mui-table--bordered">
+        <thead>
+          <tr>
+            <th>Kada</th>
+            <th>Temperatūra</th>
+            <th>Krituliai</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Forecast.Weather}}
+          <tr>
+            <td>{{.DateTime}}</td>
+            <td>{{.Temperature}}</td>
+            <td>{{.Humidity}}</td>
+          </tr>
           {{end}}
-        </select>
-      </div>
-      <input type="submit" value="Rodyti">
-    </form>
-
-    <h1>{{.Selected}}</h1>
+        </tbody>
+      </table>
+    </div>
   </div>
 </body>
 

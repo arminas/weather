@@ -1,7 +1,12 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	"html/template"
+	"io"
+	"log"
 	"net/http"
 	"sort"
 	"strings"
@@ -18,11 +23,50 @@ type Locations []Location
 type TemplateData struct {
 	Options  Locations
 	Selected string
+	Forecast ForecastResponse
+}
+
+type ForecastResponse struct {
+	Latitude  float32 `json:"latitude"`
+	Longitude float32 `json:"longitude"`
+	Hourly    struct {
+		Time        []string  `json:"time"`
+		Temperature []float32 `json:"temperature_2m"`
+		Humidity    []int     `json:"relative_humidity_2m"`
+	} `json:"hourly"`
+}
+
+func (r ForecastResponse) Weather() []Weather {
+	var list []Weather
+
+	for index, time := range r.Hourly.Time {
+		list = append(list, Weather{
+			DateTime:    time,
+			Temperature: r.Hourly.Temperature[index],
+			Humidity:    r.Hourly.Humidity[index],
+		})
+	}
+
+	return list
+}
+
+type Weather struct {
+	DateTime    string
+	Temperature float32
+	Humidity    int
 }
 
 func (l Locations) Len() int           { return len(l) }
 func (l Locations) Less(i, j int) bool { return l[i].Order < l[j].Order }
 func (l Locations) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
+func (l Locations) LocationFromCity(city string) (Location, error) {
+	for _, location := range l {
+		if location.Name == city {
+			return location, nil
+		}
+	}
+	return Location{}, errors.New("city not found")
+}
 
 var locations = Locations{
 	{Name: "Vilnius", Latitude: "54.68", Longitude: "25.27", Order: 0},
@@ -39,13 +83,64 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	if strings.TrimSpace(selectedPlace) == "" {
 		selectedPlace = "Vilnius"
 	}
+	selectedCity, err := locations.LocationFromCity(selectedPlace)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("received request for %s\n", selectedPlace)
 
 	sort.Sort(locations)
+
+	var forecast = fetch_weather(selectedCity)
 
 	templ_data := TemplateData{
 		Options:  locations,
 		Selected: selectedPlace,
+		Forecast: forecast,
 	}
 
 	t.Execute(w, templ_data)
+}
+
+func fetch_weather(location Location) ForecastResponse {
+	timezone := "Europe/Vilnius"
+	requestURL := fmt.Sprintf(
+		`https://api.open-meteo.com/v1/forecast?`+
+			`latitude=%v`+
+			`&longitude=%v`+
+			`&hourly=temperature_2m,relative_humidity_2m`+
+			`&timezone=%v`+
+			`&forecast_days=1`,
+		location.Latitude, location.Longitude, timezone,
+	)
+	req, err := http.NewRequest(http.MethodGet, requestURL, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("User-Agent", "meno_lt_weather_scraper")
+	req.Header.Add("Accept", "application/json")
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("client: got response!\n")
+	fmt.Printf("client: status code: %d\n", res.StatusCode)
+
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("client: response body: %s\n", body)
+
+	var parsed ForecastResponse
+	err = json.Unmarshal(body, &parsed)
+	if err != nil {
+		log.Fatalf("Unable to marshal JSON due to %s", err)
+	}
+
+	return parsed
 }
