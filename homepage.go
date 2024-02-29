@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -23,7 +22,7 @@ type Locations []Location
 
 type TemplateData struct {
 	Options  Locations
-	Selected string
+	Selected Location
 	Forecast ForecastResponse
 }
 
@@ -62,13 +61,14 @@ type Weather struct {
 func (l Locations) Len() int           { return len(l) }
 func (l Locations) Less(i, j int) bool { return l[i].Order < l[j].Order }
 func (l Locations) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
-func (l Locations) LocationFromCity(city string) (Location, error) {
+func (l Locations) LocationFromCity(city string) Location {
 	for _, location := range l {
 		if location.Name == city {
-			return location, nil
+			return location
 		}
 	}
-	return Location{}, errors.New("city not found")
+
+	return l[0]
 }
 
 var locations = Locations{
@@ -86,10 +86,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	if strings.TrimSpace(selectedPlace) == "" {
 		selectedPlace = "Vilnius"
 	}
-	selectedCity, err := locations.LocationFromCity(selectedPlace)
-	if err != nil {
-		log.Fatal(err)
-	}
+	selectedCity := locations.LocationFromCity(selectedPlace)
 
 	fmt.Printf("received request for %s\n", selectedPlace)
 
@@ -99,7 +96,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 
 	templ_data := TemplateData{
 		Options:  locations,
-		Selected: selectedPlace,
+		Selected: selectedCity,
 		Forecast: forecast,
 	}
 

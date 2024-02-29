@@ -16,7 +16,7 @@
           <label>Miestai:</label>
           <select id="place" name="place">
             {{range .Options }}
-            <option value="{{.Name}}" id="{{.Name}}" {{if eq .Name $.Selected}}selected{{end}}>{{.Name}}
+            <option value="{{.Name}}" id="{{.Name}}" {{if eq .Name $.Selected.Name}}selected{{end}}>{{.Name}}
             </option>
             {{end}}
           </select>
@@ -24,7 +24,7 @@
         <input type="submit" value="Rodyti" class="mui-btn mui-btn--primary">
       </form>
       <div class="mui-divider"></div>
-      <h1>{{.Selected}}</h1>
+      <h1>{{.Selected.Name}}</h1>
       <table class="mui-table mui-table--bordered">
         <thead>
           <tr>
