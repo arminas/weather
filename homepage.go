@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 )
 
 type Location struct {
@@ -30,7 +31,7 @@ type ForecastResponse struct {
 	Latitude  float32 `json:"latitude"`
 	Longitude float32 `json:"longitude"`
 	Hourly    struct {
-		Time        []string  `json:"time"`
+		Time        []int64   `json:"time"`
 		Temperature []float32 `json:"temperature_2m"`
 		Humidity    []int     `json:"relative_humidity_2m"`
 	} `json:"hourly"`
@@ -39,9 +40,11 @@ type ForecastResponse struct {
 func (r ForecastResponse) Weather() []Weather {
 	var list []Weather
 
-	for index, time := range r.Hourly.Time {
+	for index, timestamp := range r.Hourly.Time {
+		parsedTime := time.Unix(timestamp, 0)
+
 		list = append(list, Weather{
-			DateTime:    time,
+			DateTime:    parsedTime,
 			Temperature: r.Hourly.Temperature[index],
 			Humidity:    r.Hourly.Humidity[index],
 		})
@@ -51,7 +54,7 @@ func (r ForecastResponse) Weather() []Weather {
 }
 
 type Weather struct {
-	DateTime    string
+	DateTime    time.Time
 	Temperature float32
 	Humidity    int
 }
@@ -111,7 +114,8 @@ func fetch_weather(location Location) ForecastResponse {
 			`&longitude=%v`+
 			`&hourly=temperature_2m,relative_humidity_2m`+
 			`&timezone=%v`+
-			`&forecast_days=1`,
+			`&timeformat=unixtime`+
+			`&forecast_days=7`,
 		location.Latitude, location.Longitude, timezone,
 	)
 	req, err := http.NewRequest(http.MethodGet, requestURL, nil)
