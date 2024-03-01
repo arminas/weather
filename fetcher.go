@@ -21,9 +21,14 @@ type ForecastResponse struct {
 
 func (r ForecastResponse) Weather() []Weather {
 	var list []Weather
+	now := time.Now()
 
 	for index, timestamp := range r.Hourly.Time {
 		parsedTime := time.Unix(timestamp, 0)
+
+		if parsedTime.Before(now) {
+			continue
+		}
 
 		list = append(list, Weather{
 			DateTime:    parsedTime,
