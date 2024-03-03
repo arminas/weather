@@ -17,9 +17,9 @@ type Location struct {
 type Locations []Location
 
 type TemplateData struct {
-	Options  Locations
-	Selected Location
-	Forecast ForecastResponse
+	Options        Locations
+	Selected       Location
+	ForecastHourly []Weather
 }
 
 func (l Locations) Len() int           { return len(l) }
@@ -59,9 +59,9 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	var forecast = fetch_weather(selectedCity)
 
 	templ_data := TemplateData{
-		Options:  locations,
-		Selected: selectedCity,
-		Forecast: forecast,
+		Options:        locations,
+		Selected:       selectedCity,
+		ForecastHourly: forecast.hourly,
 	}
 
 	t.Execute(w, templ_data)

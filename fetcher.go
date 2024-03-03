@@ -19,8 +19,8 @@ type ForecastResponse struct {
 	} `json:"hourly"`
 }
 
-func (r ForecastResponse) Weather() []Weather {
-	var list []Weather
+func (r ForecastResponse) Weather() Forecast {
+	var forecast Forecast
 	now := time.Now()
 
 	for index, timestamp := range r.Hourly.Time {
@@ -30,14 +30,14 @@ func (r ForecastResponse) Weather() []Weather {
 			continue
 		}
 
-		list = append(list, Weather{
+		forecast.hourly = append(forecast.hourly, Weather{
 			DateTime:    parsedTime,
 			Temperature: r.Hourly.Temperature[index],
 			Humidity:    r.Hourly.Humidity[index],
 		})
 	}
 
-	return list
+	return forecast
 }
 
 type Weather struct {
@@ -46,7 +46,11 @@ type Weather struct {
 	Humidity    int
 }
 
-func fetch_weather(location Location) ForecastResponse {
+type Forecast struct {
+	hourly []Weather
+}
+
+func fetch_weather(location Location) Forecast {
 	timezone := "Europe/Vilnius"
 	requestURL := fmt.Sprintf(
 		`https://api.open-meteo.com/v1/forecast?`+
@@ -78,13 +82,13 @@ func fetch_weather(location Location) ForecastResponse {
 		log.Fatal(err)
 	}
 
-	log.Printf("client: response body: %s\n", body)
+	// log.Printf("client: response body: %s\n", body)
 
-	var parsed ForecastResponse
-	err = json.Unmarshal(body, &parsed)
+	var response ForecastResponse
+	err = json.Unmarshal(body, &response)
 	if err != nil {
 		log.Fatalf("Unable to marshal JSON due to %s", err)
 	}
 
-	return parsed
+	return response.Weather()
 }
