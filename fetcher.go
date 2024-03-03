@@ -69,8 +69,8 @@ func fetch_weather(location Location) ForecastResponse {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("client: got response!\n")
-	fmt.Printf("client: status code: %d\n", res.StatusCode)
+	log.Printf("client: got response!\n")
+	log.Printf("client: status code: %d\n", res.StatusCode)
 
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
@@ -78,7 +78,7 @@ func fetch_weather(location Location) ForecastResponse {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("client: response body: %s\n", body)
+	log.Printf("client: response body: %s\n", body)
 
 	var parsed ForecastResponse
 	err = json.Unmarshal(body, &parsed)

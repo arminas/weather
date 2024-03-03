@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"sort"
 	"strings"
@@ -52,7 +52,7 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 	}
 	selectedCity := locations.LocationFromCity(selectedPlace)
 
-	fmt.Printf("received request for %s\n", selectedPlace)
+	log.Printf("received request for %s\n", selectedPlace)
 
 	sort.Sort(locations)
 
