@@ -4,46 +4,59 @@
 <head>
   <meta charset="utf-8" />
   <title>Orai Lietuvoje</title>
-  <link href="//cdn.muicss.com/mui-0.10.3/css/mui.min.css" rel="stylesheet" type="text/css" />
-  <script src="//cdn.muicss.com/mui-0.10.3/js/mui.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
-  <div class="mui-container">
-    <div class="mui-panel">
-      <form method="GET" class="mui-form">
-        <div>
-          <label>Miestai:</label>
-          <select id="place" name="place">
-            {{range .Options }}
-            <option value="{{.Name}}" id="{{.Name}}" {{if eq .Name $.Selected.Name}}selected{{end}}>{{.Name}}
-            </option>
-            {{end}}
-          </select>
-        </div>
-        <input type="submit" value="Rodyti" class="mui-btn mui-btn--primary">
-      </form>
-      <div class="mui-divider"></div>
-      <h1>{{.Selected.Name}}</h1>
-      <table class="mui-table mui-table--bordered">
-        <thead>
-          <tr>
-            <th>Kada</th>
-            <th>Temperatūra</th>
-            <th>Krituliai</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{range .ForecastHourly }}
-          <tr>
-            <td>{{.DateTime}}</td>
-            <td>{{.Temperature}}</td>
-            <td>{{.Humidity}}</td>
-          </tr>
-          {{end}}
-        </tbody>
-      </table>
-    </div>
+  <div class="container mx-auto px-4">
+    <form method="GET" class="flex justify-center">
+      <div class="" role="group">
+        {{range .Options }}
+        {{if eq .Name $.Selected.Name}}
+        <button type="submit" name="place"
+          class="px-4 py-2 text-sm font-medium bg-transparent border border-gray-900 rounded bg-gray-900 z-10 ring-2 ring-gray-500 bg-gray-900 dark:border-white dark:text-white dark:text-white dark:bg-gray-700 dark:bg-gray-700"
+          value="{{.Name}}">
+          {{.Name}}
+        </button>
+        {{else}}
+        <button type="submit" name="place"
+          class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-100 rounded hover:bg-gray-900 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700"
+          value="{{.Name}}">
+          {{.Name}}
+        </button>
+        {{end}}
+        {{end}}
+      </div>
+    </form>
+    <h1 class="mb-4 text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl lg:text-5xl dark:text-white">{{.Selected.Name}}</h1>
+    <table class="border-collapse table-auto w-full text-sm">
+      <thead>
+        <tr>
+          <th
+            class="border-b dark:border-slate-600 font-medium p-4 pl-8 pt-0 pb-3 text-slate-600 dark:text-slate-200 text-left">
+            Kada</th>
+          <th
+            class="border-b dark:border-slate-600 font-medium p-4 pl-8 pt-0 pb-3 text-slate-600 dark:text-slate-200 text-left">
+            Temperatūra</th>
+          <th
+            class="border-b dark:border-slate-600 font-medium p-4 pl-8 pt-0 pb-3 text-slate-600 dark:text-slate-200 text-left">
+            Krituliai</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-slate-900">
+        {{range .ForecastHourly }}
+        <tr>
+          <td class="border-b border-slate-100 dark:border-slate-800 p-4 pl-8 text-slate-500 dark:text-slate-400">
+            {{.DateTime}}</td>
+          <td class="border-b border-slate-100 dark:border-slate-800 p-4 pl-8 text-slate-500 dark:text-slate-400">
+            {{.Temperature}}</td>
+          <td class="border-b border-slate-100 dark:border-slate-800 p-4 pl-8 text-slate-500 dark:text-slate-400">
+            {{.Humidity}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
   </div>
 </body>
 
